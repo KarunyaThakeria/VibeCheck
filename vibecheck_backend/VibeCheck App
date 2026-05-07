@@ -1,0 +1,687 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(VibeCheckApp());
+}
+
+class VibeCheckApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'VibeCheck',
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      home: WelcomeScreen(),
+    );
+  }
+}
+
+// Welcome Screen
+class WelcomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.purple, Colors.blue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: Image.asset(
+                    'assets/Personality.jpg',
+                    height: 250,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 30),
+                Text(
+                  'Welcome to VibeCheck',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignupScreen()),
+                    );
+                  },
+                  child: Text('Get Started'),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    textStyle: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Signup Screen
+class SignupScreen extends StatelessWidget {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sign Up'),
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.deepPurple, Colors.pink],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Sign Up',
+                    style: TextStyle(fontSize: 32, color: Colors.white),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: usernameController,
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AnalyzeScreen()),
+                      );
+                    },
+                    child: Text('Create User'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Analyze Screen
+class AnalyzeScreen extends StatefulWidget {
+  @override
+  _AnalyzeScreenState createState() => _AnalyzeScreenState();
+}
+
+class _AnalyzeScreenState extends State<AnalyzeScreen> {
+  final TextEditingController textController = TextEditingController();
+  final int maxCharacters = 10000;
+
+  String personality = "";
+  String personalityDescription = "";
+  String sentiment = "";
+  Map<String, bool> toxicity = {};
+  bool isAnalyzed = false;
+
+  void analyzeText() {
+    final text = textController.text.toLowerCase();
+
+    setState(() {
+      // Analyze Personality
+      personality = analyzePersonality(text);
+      personalityDescription = getPersonalityDescription(personality);
+
+      // Analyze Sentiment
+      sentiment = analyzeSentiment(text);
+
+      // Analyze Toxicity
+      toxicity = analyzeToxicity(text);
+      isAnalyzed = true;
+    });
+  }
+
+  String analyzePersonality(String text) {
+    Map<String, List<String>> personalityTraits = {
+      "Introvert": [
+        "alone",
+        "quiet",
+        "reserved",
+        "reflective",
+        "solitary",
+        "shy",
+        "withdrawn",
+        "pensive",
+        "observant",
+        "self-sufficient",
+        "thoughtful",
+        "mellow",
+        "reclusive",
+        "private",
+        "calm",
+        "cautious"
+      ],
+      "Extrovert": [
+        "outgoing",
+        "social",
+        "talkative",
+        "energetic",
+        "party",
+        "lively",
+        "charismatic",
+        "gregarious",
+        "enthusiastic",
+        "boisterous",
+        "bold",
+        "expressive",
+        "vibrant",
+        "friendly",
+        "approachable",
+        "confident"
+      ],
+      "Intuitive": [
+        "creative",
+        "vision",
+        "imagination",
+        "future",
+        "conceptual",
+        "abstract",
+        "innovative",
+        "theoretical",
+        "ideas",
+        "possibilities",
+        "inspiration",
+        "idealistic",
+        "introspective",
+        "exploration",
+        "curiosity",
+        "philosophical"
+      ],
+      "Sensing": [
+        "practical",
+        "realistic",
+        "details",
+        "present",
+        "tangible",
+        "facts",
+        "observant",
+        "factual",
+        "concrete",
+        "real-world",
+        "traditional",
+        "hands-on",
+        "sensible",
+        "logical",
+        "systematic",
+        "down-to-earth"
+      ],
+      "Thinking": [
+        "logic",
+        "objective",
+        "analysis",
+        "reason",
+        "decision",
+        "rational",
+        "critical",
+        "intellectual",
+        "strategic",
+        "independent",
+        "problem-solving",
+        "methodical",
+        "analytical",
+        "clear-headed",
+        "pragmatic",
+        "focused"
+      ],
+      "Feeling": [
+        "emotion",
+        "compassion",
+        "value",
+        "harmony",
+        "care",
+        "sympathy",
+        "empathy",
+        "warm",
+        "affectionate",
+        "tender",
+        "sensitive",
+        "thoughtful",
+        "kind",
+        "gentle",
+        "considerate",
+        "loyal"
+      ],
+      "Judging": [
+        "organized",
+        "plan",
+        "structured",
+        "goal",
+        "decisive",
+        "orderly",
+        "methodical",
+        "disciplined",
+        "arranged",
+        "stable",
+        "consistent",
+        "predictable",
+        "responsible",
+        "dependable",
+        "productive",
+        "systematic"
+      ],
+      "Perceiving": [
+        "flexible",
+        "spontaneous",
+        "adaptable",
+        "open-ended",
+        "curious",
+        "explorative",
+        "easy-going",
+        "open-minded",
+        "improvisational",
+        "creative",
+        "laid-back",
+        "informal",
+        "carefree",
+        "unconventional",
+        "creative",
+        "accepting"
+      ]
+    };
+
+    Map<String, int> traitScores = {
+      "Introvert": 0,
+      "Extrovert": 0,
+      "Intuitive": 0,
+      "Sensing": 0,
+      "Thinking": 0,
+      "Feeling": 0,
+      "Judging": 0,
+      "Perceiving": 0
+    };
+
+    // Count occurrences of each keyword
+    for (var trait in personalityTraits.entries) {
+      for (var keyword in trait.value) {
+        if (text.contains(keyword)) {
+          traitScores[trait.key] = (traitScores[trait.key] ?? 0) + 1;
+        }
+      }
+    }
+
+    // Debugging: Print trait scores
+    print("Trait Scores:");
+    traitScores.forEach((trait, score) {
+      print("$trait: $score");
+    });
+
+    // Adjusting weights for accuracy:
+    traitScores["Thinking"] =
+        traitScores["Thinking"]! * 2; // Increase weight of Thinking
+    traitScores["Judging"] =
+        traitScores["Judging"]! * 2; // Increase weight of Judging
+    traitScores["Intuitive"] =
+        traitScores["Intuitive"]! * 2; // Increase weight of Intuitive
+
+    // Debugging: Print weighted trait scores
+    print("Weighted Trait Scores:");
+    traitScores.forEach((trait, score) {
+      print("$trait: $score");
+    });
+
+    // Determine dominant traits by comparing scores
+    String type = "";
+    type += (traitScores["Introvert"]! > traitScores["Extrovert"]! ? "I" : "E");
+    type += (traitScores["Intuitive"]! > traitScores["Sensing"]! ? "N" : "S");
+    type += (traitScores["Thinking"]! > traitScores["Feeling"]! ? "T" : "F");
+    type += (traitScores["Judging"]! > traitScores["Perceiving"]! ? "J" : "P");
+
+    return type;
+  }
+
+  String getPersonalityDescription(String code) {
+    Map<String, String> descriptions = {
+      "INTJ": "Introvert, Intuitive, Thinking, Judging",
+      "ENTP": "Extrovert, Intuitive, Thinking, Perceiving",
+      "INFJ": "Introvert, Intuitive, Feeling, Judging",
+      "ENFP": "Extrovert, Intuitive, Feeling, Perceiving",
+      "INTP": "Introvert, Intuitive, Thinking, Perceiving",
+      "ENFJ": "Extrovert, Intuitive, Feeling, Judging",
+      "ISFJ": "Introvert, Sensing, Feeling, Judging",
+      "ESTP": "Extrovert, Sensing, Thinking, Perceiving",
+      "ISFP": "Introvert, Sensing, Feeling, Perceiving",
+      "ESTJ": "Extrovert, Sensing, Thinking, Judging",
+      "ESFP": "Extrovert, Sensing, Feeling, Perceiving",
+      "INFP": "Introvert, Intuitive, Feeling, Perceiving",
+      "ESFJ": "Extrovert, Sensing, Feeling, Judging",
+    };
+
+    return descriptions[code] ?? "Description not available";
+  }
+
+  String analyzeSentiment(String text) {
+    List<String> positiveWords = [
+      "happy",
+      "good",
+      "excellent",
+      "love",
+      "great",
+      "awesome",
+      "joyful",
+      "positive",
+      "amazing",
+      "wonderful",
+      "success",
+      "inspiring",
+      "optimistic",
+      "blessed",
+      "grateful",
+      "content",
+      "hopeful",
+      "elated",
+      "bright",
+      "cheerful",
+      "fantastic"
+    ];
+    List<String> negativeWords = [
+      "sad",
+      "bad",
+      "terrible",
+      "hate",
+      "angry",
+      "awful",
+      "worst",
+      "horrible",
+      "disgusting",
+      "failure",
+      "frustration",
+      "lazy",
+      "unhappy",
+      "disappointed",
+      "depressed",
+      "miserable",
+      "dreadful",
+      "unpleasant",
+      "heartbroken",
+      "defeated",
+      "downcast"
+    ];
+
+    int score = 0;
+
+    for (var word in text.split(' ')) {
+      if (positiveWords.contains(word)) {
+        score++;
+      } else if (negativeWords.contains(word)) {
+        score--;
+      }
+    }
+
+    if (score > 0) return "Positive";
+    if (score < 0) return "Negative";
+    return "Neutral";
+  }
+
+  Map<String, bool> analyzeToxicity(String text) {
+    return {
+      'Toxic': text.contains("bad") ||
+          text.contains("stupid") ||
+          text.contains("horrible") ||
+          text.contains("disgusting") ||
+          text.contains("pathetic") ||
+          text.contains("weak") ||
+          text.contains("useless") ||
+          text.contains("nasty") ||
+          text.contains("annoying") ||
+          text.contains("lazy") ||
+          text.contains("suck") ||
+          text.contains("boring") ||
+          text.contains("pointless") ||
+          text.contains("garbage") ||
+          text.contains("terrible"),
+      'Severe Toxic': text.contains("kill") ||
+          text.contains("hate") ||
+          text.contains("murder") ||
+          text.contains("violence") ||
+          text.contains("death") ||
+          text.contains("rape") ||
+          text.contains("destroy") ||
+          text.contains("hateful") ||
+          text.contains("f***") ||
+          text.contains("slaughter") ||
+          text.contains("hurt") ||
+          text.contains("punch") ||
+          text.contains("attack") ||
+          text.contains("abuse") ||
+          text.contains("torture"),
+      'Obscene': text.contains("f***") ||
+          text.contains("shut up") ||
+          text.contains("bitch") ||
+          text.contains("asshole") ||
+          text.contains("damn") ||
+          text.contains("bastard") ||
+          text.contains("shit") ||
+          text.contains("slut") ||
+          text.contains("cunt") ||
+          text.contains("whore") ||
+          text.contains("motherf***er") ||
+          text.contains("piss") ||
+          text.contains("dick") ||
+          text.contains("pussy") ||
+          text.contains("cock"),
+      'Threat': text.contains("revenge") ||
+          text.contains("hurt") ||
+          text.contains("kill") ||
+          text.contains("attack") ||
+          text.contains("destroy") ||
+          text.contains("punish") ||
+          text.contains("assault") ||
+          text.contains("beat") ||
+          text.contains("torture") ||
+          text.contains("punishment") ||
+          text.contains("murder") ||
+          text.contains("harm") ||
+          text.contains("injury") ||
+          text.contains("threaten") ||
+          text.contains("strike"),
+      'Insult': text.contains("idiot") ||
+          text.contains("dumb") ||
+          text.contains("moron") ||
+          text.contains("stupid") ||
+          text.contains("fool") ||
+          text.contains("loser") ||
+          text.contains("retarded") ||
+          text.contains("lame") ||
+          text.contains("weakling") ||
+          text.contains("pathetic") ||
+          text.contains("jerk") ||
+          text.contains("asshole") ||
+          text.contains("bastard") ||
+          text.contains("clown") ||
+          text.contains("buffoon"),
+      'Identity Hate': text.contains("racism") ||
+          text.contains("sexist") ||
+          text.contains("homophobic") ||
+          text.contains("transphobic") ||
+          text.contains("xenophobic") ||
+          text.contains("bigot") ||
+          text.contains("hate crime") ||
+          text.contains("hate speech") ||
+          text.contains("prejudice") ||
+          text.contains("discrimination") ||
+          text.contains("bigotry") ||
+          text.contains("misogynist") ||
+          text.contains("misandrist") ||
+          text.contains("ableist") ||
+          text.contains("anti-semitic")
+    };
+  }
+
+  Widget buildRadioButton(String label, bool isSelected, Color color) {
+    return Row(
+      children: [
+        Radio(
+          value: true,
+          groupValue: isSelected,
+          onChanged: (_) {},
+          activeColor: color,
+        ),
+        Text(label, style: TextStyle(color: color)),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('VibeCheck'),
+        ),
+        body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xff8fcdf6),
+                  Color(0xffdd85f8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: textController,
+                      maxLength: maxCharacters,
+                      maxLines: 6,
+                      decoration: InputDecoration(
+                        labelText: 'Enter text to analyze',
+                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Centered Analyze Button
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: analyzeText,
+                        child: Text('Analyze'),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Sentiment Analysis
+                    Text(
+                      'Sentiment Analysis',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10), // Add some spacing
+// Only show the Sentiment result rows after analysis
+                    if (isAnalyzed) ...[
+                      Row(
+                        children: [
+                          buildRadioButton(
+                              'Negative', sentiment == "Negative", Colors.red),
+                          buildRadioButton(
+                              'Neutral', sentiment == "Neutral", Colors.blue),
+                          buildRadioButton('Positive', sentiment == "Positive",
+                              Colors.green),
+                        ],
+                      ),
+                    ],
+                    SizedBox(height: 20),
+
+                    // Toxicity Analysis
+                    Text(
+                      'Toxicity Analysis',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    Wrap(
+                      spacing: 10,
+                      children: toxicity.entries.map((entry) {
+                        return buildRadioButton(entry.key, entry.value,
+                            entry.value ? Colors.red : Colors.purple);
+                      }).toList(),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Personality Analysis
+                    Text(
+                      'Personality Analysis',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+
+                    if (isAnalyzed) ...[
+                      ElevatedButton(
+                        onPressed: () {},
+                        child: Text("Type: $personality"),
+                      ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {},
+                        child: Text("Description: $personalityDescription"),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            )));
+  }
+}
